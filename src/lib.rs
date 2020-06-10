@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 use snafu::Snafu;
+use std::io::Write;
 
 #[derive(Debug, Snafu)]
 /// Errors related to shell. Keep in mind that code names and args are not provided
@@ -26,3 +27,7 @@ enum ShellError {
 }
 
 type ShellResult<T> = Result<T, ShellError>;
+
+trait Invokable {
+    fn invoke(&self, writable: Box<dyn Write>, args: &str);
+}
