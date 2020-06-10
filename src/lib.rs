@@ -24,3 +24,5 @@ enum ShellError {
     /// Error while initializing a code.
     CodeError { message: String },
 }
+
+type ShellResult<T> = Result<T, ShellError>;
