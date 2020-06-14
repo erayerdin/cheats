@@ -6,3 +6,6 @@ edition = "2018"
 
 [dependencies]
 snafu = "0.6.8"
+
+[dev-dependencies]
+rstest = "0.6.3"
