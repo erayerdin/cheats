@@ -47,11 +47,24 @@ impl io::Read for Stream {
     }
 }
 
+impl io::Write for Stream {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        use std::io::Write;
+
+        self.buffer.write(buf);
+        Ok(buf.len())
+    }
+    /// Does nothing.
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use rstest::*;
-    use std::io::Read;
+    use std::io::{Read, Write};
 
     #[fixture]
     fn stream() -> Stream {
@@ -65,7 +78,9 @@ mod tests {
         let mut msg = String::new();
         let mut buffer: [u8; 8] = [0; 8];
 
-        let byte_count = stream.read(&mut buffer).expect("Could not read Stream.");
+        let byte_count = stream
+            .read(&mut buffer)
+            .expect("Could not read from Stream.");
         msg.extend(
             buffer
                 .iter()
@@ -76,5 +91,23 @@ mod tests {
         assert_eq!(byte_count, 5);
         assert_eq!(msg, "lorem");
         assert!(stream.buffer.is_empty());
+    }
+
+    #[rstest]
+    fn write(mut stream: Stream) {
+        let buffer = b" ipsum";
+        let mut expected_msg = String::new();
+        expected_msg.extend("lorem".chars());
+        buffer
+            .iter()
+            .for_each(|c| expected_msg.push(c.clone() as char));
+
+        let byte_count = stream.write(buffer).expect("Could not write to Stream.");
+        let mut msg = String::new();
+        msg.extend(stream.buffer.iter().map(|c| c.clone() as char));
+
+        assert_eq!(byte_count, buffer.len());
+        assert_eq!(stream.buffer.len(), byte_count + 5);
+        assert_eq!(expected_msg, msg);
     }
 }
