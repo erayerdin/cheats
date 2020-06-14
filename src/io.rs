@@ -12,4 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod io;
+/// A stream to use as output and input for game shell.
+struct Stream {
+    buffer: Vec<u8>,
+}
