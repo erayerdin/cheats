@@ -12,7 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::io;
+
 /// A stream to use as output and input for game shell.
 struct Stream {
     buffer: Vec<u8>,
+}
+
+impl Stream {
+    fn new() -> Self {
+        Stream { buffer: vec![] }
+    }
 }
