@@ -14,13 +14,14 @@
 
 use std::io;
 
+#[derive(Clone)]
 /// A stream to use as output and input for game shell.
-struct Stream {
+pub struct Stream {
     buffer: Vec<u8>,
 }
 
 impl Stream {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Stream { buffer: vec![] }
     }
 }
@@ -49,9 +50,10 @@ impl io::Read for Stream {
 
 impl io::Write for Stream {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        use std::io::Write;
+        #[allow(unused_imports)]
+        use std::io::Write; // required for writing to buffer
 
-        self.buffer.write(buf);
+        self.buffer.write(buf).unwrap_or(0);
         Ok(buf.len())
     }
     /// Does nothing.

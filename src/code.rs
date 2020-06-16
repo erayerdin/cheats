@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use derivative::Derivative;
 use snafu::Snafu;
 use std::io;
 
 #[derive(Debug, Snafu)]
-enum CodeError<'a> {
+pub enum CodeError<'a> {
     #[snafu(display(
         "Code could not be initialized due to its name containing whitespace. Name: {}",
         name
@@ -28,17 +29,20 @@ enum CodeError<'a> {
 type CodeResult<'a, T> = Result<T, CodeError<'a>>;
 
 /// A trait for structs that are invokable/runnable.
-trait Invokable {
-    fn invoke(&self, args: &str, stdout: Box<dyn io::Write>, stderr: Box<dyn io::Write>);
+pub trait Invokable {
+    fn invoke(&self, args: &str, stdout: Box<&mut dyn io::Write>, stderr: Box<&mut dyn io::Write>);
 }
 
-struct Code<'a> {
-    name: &'a str,
-    invokable: Box<dyn Invokable>,
+#[derive(Derivative)]
+#[derivative(Eq, PartialEq, Hash)]
+pub struct Code<'a> {
+    pub name: &'a str,
+    #[derivative(PartialEq = "ignore", Hash = "ignore")]
+    pub invokable: Box<dyn Invokable>,
 }
 
 impl<'a> Code<'a> {
-    fn new(name: &'a str, invokable: Box<dyn Invokable>) -> CodeResult<Self> {
+    pub fn new(name: &'a str, invokable: Box<dyn Invokable>) -> CodeResult<Self> {
         match name.chars().any(|c| c.is_whitespace()) {
             true => Err(CodeError::WhitespaceError { name }),
             false => Ok(Self { name, invokable }),
@@ -55,9 +59,9 @@ mod tests {
     impl Invokable for ClHello {
         fn invoke(
             &self,
-            args: &str,
-            stdout: Box<dyn std::io::Write>,
-            stderr: Box<dyn std::io::Write>,
+            _args: &str,
+            _stdout: Box<&mut dyn std::io::Write>,
+            _stderr: Box<&mut dyn std::io::Write>,
         ) {
             todo!()
         }
