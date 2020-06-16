@@ -1,11 +1,11 @@
 # Cheats
 
 [![Version][version_badge]][crate_url]
-[![Version][license_badge]](LICENSE.txt)
-[![Version][total_downloads_badge]][crate_url]
-[![Version][recent_downloads_badge]][crate_url]
-[![Version][master_build_badge]][actions_url]
-[![Version][development_build_badge]][actions_url]
+[![License][license_badge]](LICENSE.txt)
+[![Total Downloads][total_downloads_badge]][crate_url]
+[![Recent Downloads][recent_downloads_badge]][crate_url]
+[![Build on Master][master_build_badge]][actions_url]
+[![Build on Development][development_build_badge]][actions_url]
 
 [version_badge]: https://img.shields.io/crates/v/cheats?label=version&style=flat-square
 [license_badge]: https://img.shields.io/crates/l/cheats?label=license&style=flat-square
