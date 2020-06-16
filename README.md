@@ -17,6 +17,32 @@
 [crate_url]: https://crates.io/crates/cheats
 [actions_url]: https://github.com/erayerdin/cheats/actions
 
-Cheats is a Rust library implementing a shell backend for game development. You
-can use it to enable cheating for either development purposes or for fun in
-your game.
+cheats is a shell backend for games. Basically, it helps you invoke code with
+a provided string line.
+
+The library is not yet production-ready. It has a very simple implementation of
+developer console and might lack some features you might desire.
+
+# Inspiration
+
+There are many conventions about how to cheat. Grand Theft 
+Auto series receive sequential keypresses and invokes 
+functionality. Age of Empires II has a simple
+textbox to invoke a cheat but its cheats do not have any 
+arguments.
+
+In this library, cheats, the developer console of Valve 
+games such as Half-Life,
+Counter-Strike, Portal, Left 4 Dead, has been an inspiration 
+and it is implemented in such a way.
+
+    <COMMAND>
+    <COMMAND> <ARGS>
+
+    cl_hello
+    cl_hello Eray
+
+# Documentation
+
+See [the documentation](https://docs.rs/cheats) to learn how
+to use this library.
