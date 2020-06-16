@@ -30,11 +30,16 @@ type CodeResult<'a, T> = Result<T, CodeError<'a>>;
 
 /// A trait for structs that are invokable/runnable.
 pub trait Invokable {
+    /// Invocation of a series of events.
+    ///
+    /// `args` can be an empty string if nothing is given. You can use `stdout` and `stderr`
+    /// to write output.
     fn invoke(&self, args: &str, stdout: Box<&mut dyn io::Write>, stderr: Box<&mut dyn io::Write>);
 }
 
 #[derive(Derivative)]
 #[derivative(Eq, PartialEq, Hash)]
+/// A cheat code.
 pub struct Code<'a> {
     pub name: &'a str,
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
