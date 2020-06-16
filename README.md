@@ -7,7 +7,7 @@
 [![Build on Master][master_build_badge]][actions_url]
 [![Build on Development][development_build_badge]][actions_url]
 
-[version_badge]: https://img.shields.io/crates/v/cheats?label=version&style=flat-square
+[version_badge]: https://img.shields.io/crates/v/cheats?label=version&style=flat-square&logo=rust
 [license_badge]: https://img.shields.io/crates/l/cheats?label=license&style=flat-square
 [total_downloads_badge]: https://img.shields.io/crates/d/cheats?label=downloads%20%28total%29&style=flat-square
 [recent_downloads_badge]: https://img.shields.io/crates/dr/cheats?label=downloads%20%28recent%29&style=flat-square
