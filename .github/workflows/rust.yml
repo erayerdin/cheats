@@ -25,10 +25,11 @@ jobs:
           override: true
       - uses: actions-rs/cargo@v1
         with:
-          command: test
+          command: build
       - uses: actions-rs/cargo@v1
         with:
           command: test
+          args: --lib
 
   # Lint:
   #   runs-on: ubuntu-latest
