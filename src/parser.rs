@@ -18,15 +18,6 @@ use logos::Logos;
 struct LexerCallbacks;
 
 impl LexerCallbacks {
-    fn comment(lex: &mut Lexer<Token>) -> String {
-        let content: &str = lex.slice();
-        String::from(content)
-            .drain(2..content.len())
-            .collect::<String>()
-            .trim()
-            .to_owned()
-    }
-
     fn code(lex: &mut Lexer<Token>) -> (String, String) {
         let content: &str = lex.slice().trim();
         let mut split = content.split(r" ");
@@ -42,7 +33,7 @@ impl LexerCallbacks {
 }
 
 #[derive(Logos, Debug, PartialEq)]
-enum Token {
+pub enum Token {
     #[error]
     #[regex(r"[ \t\n\f]+", logos::skip)]
     Error,
