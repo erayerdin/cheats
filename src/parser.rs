@@ -49,8 +49,8 @@ enum Token {
 
     #[regex(r#"[a-zA-Z0-9-_]+([ ][a-zA-Z0-9-_]+)*"#, LexerCallbacks::code)]
     Code((String, String)),
-    #[regex("[//|#](.*)", LexerCallbacks::comment)]
-    Comment(String),
+    #[regex("[//|#](.*)", logos::skip)]
+    Comment,
 }
 
 #[cfg(test)]
@@ -63,8 +63,6 @@ mod tests {
         let script: &str = include_str!("../resources/test/example_script.txt");
         let mut lex = Token::lexer(script);
 
-        assert_eq!(lex.next(), Some(Token::Comment("comment 1".to_owned())));
-        assert_eq!(lex.next(), Some(Token::Comment("comment 2".to_owned())));
         assert_eq!(
             lex.next(),
             Some(Token::Code(("cl_hello".to_owned(), "".to_owned())))
@@ -77,12 +75,10 @@ mod tests {
             lex.next(),
             Some(Token::Code(("cl_hello".to_owned(), "".to_owned())))
         );
-        assert_eq!(lex.next(), Some(Token::Comment("comment 3".to_owned())));
         assert_eq!(
             lex.next(),
             Some(Token::Code(("cl_hello".to_owned(), "Eray".to_owned())))
         );
-        assert_eq!(lex.next(), Some(Token::Comment("comment 4".to_owned())));
         assert_eq!(
             lex.next(),
             Some(Token::Code(("cl_hello".to_owned(), "Eray".to_owned())))
