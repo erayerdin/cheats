@@ -18,7 +18,7 @@
 //! The library is not yet production-ready. It has a very simple implementation of
 //! developer console and might lack some features you might desire.
 //!
-//! # Inspiration
+//! # Shell Grammar
 //!
 //! There are many conventions about how to cheat. Grand Theft Auto series receive
 //! sequential keypresses and invokes functionality. Age of Empires II has a simple
@@ -28,11 +28,10 @@
 //! Counter-Strike, Portal, Left 4 Dead, has been an inspiration and it is implemented in
 //! such a way.
 //!
-//!     <COMMAND>
-//!     <COMMAND> <ARGS>
-//!
-//!     cl_hello
-//!     cl_hello Eray
+//!     // this is a comment
+//!     # this is a comment as well
+//!     cl_hello // without arg
+//!     cl_hello Eray # with arg
 //!
 //! # How to Use
 //!
@@ -116,7 +115,7 @@
 //! `unregister` method returns [ShellError::CodeDoesNotExist](enum.ShellError.html) if,
 //! well, the code with given name is not registered before.
 //!
-//! ## Running A Line
+//! ## Running Script
 //!
 //! You can run a cheat code line by doing:
 //!
@@ -125,8 +124,23 @@
 //! shell.run("cl_hello Eray").expect("Could not run the code.");
 //! ```
 //!
-//! `run` method returns [ShellError::CodeDoesNotExist](enum.ShellError.html) if the code
-//! does not exist, in this case, `"cl_hello"`, not its remainder `"Eray"`.
+//! Running a single line is cool but consider loading a script in runtime. You can
+//! pass a file content to `run` method. An example:
+//!
+//! ```rust
+//! use std::fs;
+//!
+//! // read the file
+//! // it does not have to have .script extension, this is just an example
+//! let content: String = fs::read_to_string("path/to/file.script")
+//!     .expect("Could not read the file.");
+//! // convert from String to &str
+//! let content_str: &content[..];
+//! // run
+//! shell.run(content_str).expect("Could not run the code.");
+//! ```
+//!
+//! # Reading Output
 //!
 //! Of course, a shell is nothing without output. [Shell](struct.Shell.html) has two
 //! attributes:
@@ -158,12 +172,15 @@ use crate::code::Code;
 use crate::code::CodeError as CError;
 use crate::code::Invokable;
 use io::Stream;
+use logos::Logos;
+use parser::Token;
 use snafu::Snafu;
 use std::collections::HashSet;
 use std::io::{Read, Write};
 
 pub mod code;
 pub mod io;
+mod parser;
 
 #[derive(Debug, Snafu)]
 pub enum ShellError<'a> {
@@ -245,39 +262,30 @@ impl<'a> Shell<'a> {
         Ok(())
     }
 
-    /// Invokes a command with provided line. Line consists of either
-    /// `<COMMAND>` or `<COMMAND> <ARGS>`.
-    pub fn run(&mut self, line: &'a str) -> ShellResult<()> {
-        match line.find(" ") {
-            Some(i) => {
-                let (name, args) = (&line[0..i], &line[i + 1..line.len()]);
+    /// Invokes commands with given input. You can read from a file.
+    /// The unregistered codes are simply passed.
+    pub fn run(&mut self, input: &'a str) -> ShellResult<()> {
+        // TODO ShellResult is not needed here, plan a new strategy
+        let lex = Token::lexer(input);
 
-                match self.codes.iter().find(|c| c.name == name) {
+        for token in lex {
+            match token {
+                Token::Code((name, args)) => match self.codes.iter().find(|c| c.name == name) {
                     Some(c) => {
                         c.invokable.invoke(
-                            args,
+                            &args[..],
                             Box::new(&mut self.stdout as &mut dyn Write),
                             Box::new(&mut self.stderr as &mut dyn Write),
                         );
-
-                        Ok(())
+                        continue;
                     }
-                    None => Err(ShellError::CodeDoesNotExist { name }),
-                }
+                    None => continue, // TODO plan a better strategy
+                },
+                _ => continue,
             }
-            None => match self.codes.iter().find(|c| c.name == line) {
-                Some(c) => {
-                    c.invokable.invoke(
-                        "",
-                        Box::new(&mut self.stdout as &mut dyn Write),
-                        Box::new(&mut self.stderr as &mut dyn Write),
-                    );
-
-                    Ok(())
-                }
-                None => Err(ShellError::CodeDoesNotExist { name: line }),
-            },
         }
+
+        Ok(())
     }
 }
 
@@ -360,24 +368,20 @@ mod tests {
     }
 
     #[rstest(
-        line,
-        expect_failure,
-        case("cl_hello", false),
-        case("cl_hello Eray", false),
-        case("cl_whatever", true),
-        case("", true),
-        case("\ncl_lorem what", true)
+        input,
+        case("cl_hello"),
+        case("cl_hello Eray"),
+        case("cl_whatever"),
+        case(""),
+        case("\ncl_lorem what")
     )]
-    fn run<'a>(mut shell: Shell<'a>, line: &'a str, expect_failure: bool) {
-        match expect_failure {
-            true => assert!(shell.run(line).is_err()),
-            false => assert!(shell.run(line).is_ok()),
-        }
+    fn run<'a>(mut shell: Shell<'a>, input: &'a str) {
+        assert!(shell.run(input).is_ok());
     }
 
-    #[rstest(line, case("cl_hello"), case("cl_hello Eray"))]
-    fn run_out<'a>(mut shell: Shell<'a>, line: &'a str) {
-        shell.run(line).expect("Could not run line.");
+    #[rstest(input, case("cl_hello"), case("cl_hello Eray"))]
+    fn run_out<'a>(mut shell: Shell<'a>, input: &'a str) {
+        shell.run(input).expect("Could not run input.");
         let stdout = {
             let ref mut stdout = shell.stdout;
             let mut stdout_bytes: Vec<u8> = vec![];
@@ -387,7 +391,7 @@ mod tests {
             String::from_iter(stdout_bytes.into_iter().map(|b| b as char))
         };
 
-        match line.contains("Eray") {
+        match input.contains("Eray") {
             true => {
                 assert_eq!(stdout, "Hello, Eray!");
             }
@@ -405,5 +409,33 @@ mod tests {
                 assert_eq!(stderr, "Args are empty.");
             }
         }
+    }
+
+    #[rstest]
+    fn run_script_file<'a>(mut shell: Shell<'a>) {
+        let script = include_str!("../resources/test/example_script_2.txt");
+        shell.run(script).expect("Could not run input.");
+
+        let (stdout, stderr) = (
+            {
+                let ref mut stdout = shell.stdout;
+                let mut stdout_bytes: Vec<u8> = vec![];
+                stdout
+                    .read_to_end(&mut stdout_bytes)
+                    .expect("Could not read stdout.");
+                String::from_iter(stdout_bytes.into_iter().map(|b| b as char))
+            },
+            {
+                let ref mut stderr = shell.stderr;
+                let mut stderr_bytes: Vec<u8> = vec![];
+                stderr
+                    .read_to_end(&mut stderr_bytes)
+                    .expect("Could not read stdout.");
+                String::from_iter(stderr_bytes.into_iter().map(|b| b as char))
+            },
+        );
+
+        assert_eq!(stdout, "Hello, world!Hello, Eray!");
+        assert_eq!(stderr, "Args are empty.");
     }
 }

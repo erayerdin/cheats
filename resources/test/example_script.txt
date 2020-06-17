@@ -1,0 +1,7 @@
+// comment 1
+# comment 2
+cl_hello
+cl_hello Eray
+cl_hello # comment 3
+cl_hello Eray // comment 4
+    cl_hello Eray   
