@@ -11,17 +11,18 @@
 [license_badge]: https://img.shields.io/crates/l/cheats?label=license&style=flat-square
 [total_downloads_badge]: https://img.shields.io/crates/d/cheats?label=downloads%20%28total%29&style=flat-square
 [recent_downloads_badge]: https://img.shields.io/crates/dr/cheats?label=downloads%20%28recent%29&style=flat-square
-[master_build_badge]: https://img.shields.io/github/workflow/status/erayerdin/cheats/rust/master?label=build%20%28master%29&logo=github&style=flat-square
-[development_build_badge]: https://img.shields.io/github/workflow/status/erayerdin/cheats/rust/development?label=build%20%28development%29&logo=github&style=flat-square
+[master_build_badge]: https://img.shields.io/github/workflow/status/erayerdin/cheats/CI/master?label=build%20%28master%29&logo=github&style=flat-square
+[development_build_badge]: https://img.shields.io/github/workflow/status/erayerdin/cheats/CI/development?label=build%20%28development%29&logo=github&style=flat-square
 
 [crate_url]: https://crates.io/crates/cheats
 [actions_url]: https://github.com/erayerdin/cheats/actions
 
-cheats is a shell backend for games. Basically, it helps you invoke code with
-a provided string line.
+cheats is a shell backend for games. Basically, it helps you 
+invoke code with a provided string line.
 
-The library is not yet production-ready. It has a very simple implementation of
-developer console and might lack some features you might desire.
+The library is not yet production-ready. It has a very 
+simple implementation of developer console and might lack 
+some features you might desire.
 
 # Inspiration
 
