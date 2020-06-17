@@ -13,6 +13,7 @@ categories = ["game-development"]
 [dependencies]
 snafu = "0.6.8"
 derivative = "2.1.1"
+logos = "0.11.4"
 
 [dev-dependencies]
 rstest = "0.6.3"
