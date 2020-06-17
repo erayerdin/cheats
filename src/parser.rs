@@ -35,7 +35,7 @@ impl LexerCallbacks {
 #[derive(Logos, Debug, PartialEq)]
 pub enum Token {
     #[error]
-    #[regex(r"[ \t\n\f]+", logos::skip)]
+    #[regex(r"[ \t\r\n\f]+", logos::skip)]
     Error,
 
     #[regex(r#"[a-zA-Z0-9-_]+([ ][a-zA-Z0-9-_]+)*"#, LexerCallbacks::code)]
