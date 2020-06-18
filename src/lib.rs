@@ -264,8 +264,8 @@ impl<'a> Shell<'a> {
 
     /// Invokes commands with given input. You can read from a file.
     /// The unregistered codes are simply passed.
-    pub fn run(&mut self, input: &'a str) -> ShellResult<()> {
-        // TODO ShellResult is not needed here, plan a new strategy
+    pub fn run(&mut self, input: &'a str) {
+        // method signature was: run(&mut self, input: &'a str) -> ShellResult<()>
         let lex = Token::lexer(input);
 
         for token in lex {
@@ -284,8 +284,6 @@ impl<'a> Shell<'a> {
                 _ => continue,
             }
         }
-
-        Ok(())
     }
 }
 
@@ -367,21 +365,21 @@ mod tests {
         }
     }
 
-    #[rstest(
-        input,
-        case("cl_hello"),
-        case("cl_hello Eray"),
-        case("cl_whatever"),
-        case(""),
-        case("\ncl_lorem what")
-    )]
-    fn run<'a>(mut shell: Shell<'a>, input: &'a str) {
-        assert!(shell.run(input).is_ok());
-    }
+    // #[rstest(
+    //     input,
+    //     case("cl_hello"),
+    //     case("cl_hello Eray"),
+    //     case("cl_whatever"),
+    //     case(""),
+    //     case("\ncl_lorem what")
+    // )]
+    // fn run<'a>(mut shell: Shell<'a>, input: &'a str) {
+    //     assert!(shell.run(input).is_ok());
+    // }
 
     #[rstest(input, case("cl_hello"), case("cl_hello Eray"))]
     fn run_out<'a>(mut shell: Shell<'a>, input: &'a str) {
-        shell.run(input).expect("Could not run input.");
+        shell.run(input);
         let stdout = {
             let ref mut stdout = shell.stdout;
             let mut stdout_bytes: Vec<u8> = vec![];
@@ -414,7 +412,7 @@ mod tests {
     #[rstest]
     fn run_script_file<'a>(mut shell: Shell<'a>) {
         let script = include_str!("../resources/test/example_script_2.txt");
-        shell.run(script).expect("Could not run input.");
+        shell.run(script);
 
         let (stdout, stderr) = (
             {
