@@ -262,7 +262,11 @@ impl<'a> Shell<'a> {
         Ok(())
     }
 
-    // TODO add docs
+    /// Filters names against the query.
+    ///
+    ///  - `query`: The query to filter code names against.
+    ///  - `starts_with`: Use `starts_with`. If `false`, it uses `contains`.
+    ///  - `sort`: Sort code names alphabetically.
     pub fn filter_names(&self, query: &str, starts_with: bool, sort: bool) -> Vec<&str> {
         let mut codenames: Vec<&str> = self
             .codes
