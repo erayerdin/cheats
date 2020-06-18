@@ -40,14 +40,14 @@ pub trait Invokable {
 #[derive(Derivative)]
 #[derivative(Eq, PartialEq, Hash)]
 /// A cheat code.
-pub struct Code<'a> {
+pub(crate) struct Code<'a> {
     pub name: &'a str,
     #[derivative(PartialEq = "ignore", Hash = "ignore")]
     pub invokable: Box<dyn Invokable>,
 }
 
 impl<'a> Code<'a> {
-    pub fn new(name: &'a str, invokable: Box<dyn Invokable>) -> CodeResult<Self> {
+    pub(crate) fn new(name: &'a str, invokable: Box<dyn Invokable>) -> CodeResult<Self> {
         match name.chars().any(|c| c.is_whitespace()) {
             true => Err(CodeError::WhitespaceError { name }),
             false => Ok(Self { name, invokable }),

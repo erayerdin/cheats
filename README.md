@@ -24,7 +24,7 @@ The library is not yet production-ready. It has a very
 simple implementation of developer console and might lack 
 some features you might desire.
 
-# Inspiration
+# Shell Grammar
 
 There are many conventions about how to cheat. Grand Theft 
 Auto series receive sequential keypresses and invokes 
@@ -33,15 +33,14 @@ textbox to invoke a cheat but its cheats do not have any
 arguments.
 
 In this library, cheats, the developer console of Valve 
-games such as Half-Life,
-Counter-Strike, Portal, Left 4 Dead, has been an inspiration 
-and it is implemented in such a way.
+games such as Half-Life, Counter-Strike, Portal, Left 4 
+Dead, has been an inspiration  and it is implemented in such 
+a way.
 
-    <COMMAND>
-    <COMMAND> <ARGS>
-
-    cl_hello
-    cl_hello Eray
+    // this is a comment
+    # this is a comment as well
+    cl_hello // without args
+    cl_hello Eray # with args
 
 # Documentation
 
