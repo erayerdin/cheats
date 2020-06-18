@@ -262,6 +262,25 @@ impl<'a> Shell<'a> {
         Ok(())
     }
 
+    // TODO add docs
+    pub fn filter_names(&self, query: &str, starts_with: bool, sort: bool) -> Vec<&str> {
+        let mut codenames: Vec<&str> = self
+            .codes
+            .iter()
+            .filter(|c| match starts_with {
+                true => c.name.starts_with(query),
+                false => c.name.contains(query),
+            })
+            .map(|c| c.name)
+            .collect();
+
+        if sort {
+            codenames.sort();
+        }
+
+        codenames
+    }
+
     /// Invokes commands with given input. You can read from a file.
     /// The unregistered codes are simply passed.
     pub fn run(&mut self, input: &'a str) {
@@ -317,6 +336,30 @@ mod tests {
                         .expect("Could not write to stdout.");
                 }
             }
+        }
+    }
+
+    struct SvFoo;
+    impl Invokable for SvFoo {
+        fn invoke(
+            &self,
+            args: &str,
+            mut stdout: Box<&mut dyn Write>,
+            mut stderr: Box<&mut dyn Write>,
+        ) {
+            unimplemented!()
+        }
+    }
+
+    struct SvFoobar;
+    impl Invokable for SvFoobar {
+        fn invoke(
+            &self,
+            args: &str,
+            mut stdout: Box<&mut dyn Write>,
+            mut stderr: Box<&mut dyn Write>,
+        ) {
+            unimplemented!()
         }
     }
 
@@ -435,5 +478,21 @@ mod tests {
 
         assert_eq!(stdout, "Hello, world!Hello, Eray!");
         assert_eq!(stderr, "Args are empty.");
+    }
+
+    #[rstest]
+    fn filter_names(mut shell: Shell) {
+        shell
+            .register("sv_foo", Box::new(SvFoo))
+            .expect("Could not register sv_foo.");
+        shell
+            .register("sv_foobar", Box::new(SvFoobar))
+            .expect("Could not register sv_foobar.");
+
+        let sv_foo_names = shell.filter_names("sv_foo", true, true);
+        assert_eq!(sv_foo_names, ["sv_foo", "sv_foobar"]);
+
+        let foo_names = shell.filter_names("foo", false, true);
+        assert_eq!(foo_names, ["sv_foo", "sv_foobar"]);
     }
 }
