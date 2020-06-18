@@ -115,6 +115,16 @@
 //! `unregister` method returns [ShellError::CodeDoesNotExist](enum.ShellError.html) if,
 //! well, the code with given name is not registered before.
 //!
+//! ## Filtering Codes
+//!
+//! Naturally, you'd like to filter code names as the user types to your shell.
+//! [Shell](struct.Shell.html) instance has a method named `filter_names` to help
+//! you filter codes. You need:
+//!
+//!  - `query`: A query to filter code names.
+//!  - `starts_with`: If `true`, filters code names using `starts_with`, else uses `contains`.
+//!  - `sort`: If `true`, sorts code names alphabetically.
+//!
 //! ## Running Script
 //!
 //! You can run a cheat code line by doing:
