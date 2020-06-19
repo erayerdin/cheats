@@ -30,8 +30,12 @@ impl Stream {
 
 impl io::Read for Stream {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
-        let length = buf.len();
+        debug!("Reading stream...");
 
+        let length = buf.len();
+        trace!("buffer length: {}", length);
+
+        debug!("Reading bytes to buffer...");
         let mut byte_count = 0usize;
         for i in 0..length {
             match self.buffer.get(0) {
@@ -46,6 +50,7 @@ impl io::Read for Stream {
             }
         }
 
+        trace!("Total bytes read: {}", byte_count);
         Ok(byte_count)
     }
 }
