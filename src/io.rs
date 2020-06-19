@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use log::*;
 use std::io;
 
 #[derive(Clone)]
@@ -22,6 +23,7 @@ pub struct Stream {
 
 impl Stream {
     pub fn new() -> Self {
+        debug!("Initializing Stream...");
         Stream { buffer: vec![] }
     }
 }
