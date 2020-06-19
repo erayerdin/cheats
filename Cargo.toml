@@ -1,7 +1,7 @@
 [package]
 name = "cheats"
 description = "A game shell backend."
-version = "0.3.0"
+version = "0.3.1"
 homepage = "https://erayerdin.hashnode.dev"
 repository = "https://github.com/erayerdin/cheats"
 license = "Apache-2.0"
@@ -14,6 +14,7 @@ categories = ["game-development"]
 snafu = "0.6.8"
 derivative = "2.1.1"
 logos = "0.11.4"
+log = "0.4.8"
 
 [dev-dependencies]
 rstest = "0.6.3"

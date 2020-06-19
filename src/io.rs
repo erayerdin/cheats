@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use log::*;
 use std::io;
 
 #[derive(Clone)]
@@ -22,14 +23,19 @@ pub struct Stream {
 
 impl Stream {
     pub fn new() -> Self {
+        debug!("Initializing Stream...");
         Stream { buffer: vec![] }
     }
 }
 
 impl io::Read for Stream {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
-        let length = buf.len();
+        debug!("Reading from stream...");
 
+        let length = buf.len();
+        trace!("buffer length: {}", length);
+
+        debug!("Reading bytes to buffer...");
         let mut byte_count = 0usize;
         for i in 0..length {
             match self.buffer.get(0) {
@@ -44,12 +50,16 @@ impl io::Read for Stream {
             }
         }
 
+        trace!("Total bytes read: {}", byte_count);
         Ok(byte_count)
     }
 }
 
 impl io::Write for Stream {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        debug!("Writing to stream...");
+        trace!("buffer length: {}", buf.len());
+
         #[allow(unused_imports)]
         use std::io::Write; // required for writing to buffer
 
