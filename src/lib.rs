@@ -125,6 +125,16 @@
 //!  - `starts_with`: If `true`, filters code names using `starts_with`, else uses `contains`.
 //!  - `sort`: If `true`, sorts code names alphabetically.
 //!
+//! ```rust
+//! // assuming you have `cl_hello`, `sv_foo`, `sv_foobar`
+//!
+//! let sv_codes = shell.filter_names("sv", true, true);
+//! assert_eq!(sv_codes, ["sv_foo", "sv_foobar"]);
+//!
+//! let foo_codes = shell.filter_names("foo", false, true);
+//! assert_eq!(foo_codes, ["sv_foo", "sv_foobar"]),
+//! ```
+//!
 //! ## Running Script
 //!
 //! You can run a cheat code line by doing:
@@ -182,6 +192,7 @@ use crate::code::Code;
 use crate::code::CodeError as CError;
 use crate::code::Invokable;
 use io::Stream;
+use log::*;
 use logos::Logos;
 use parser::Token;
 use snafu::Snafu;
@@ -222,6 +233,7 @@ pub struct Shell<'a> {
 
 impl<'a> Shell<'a> {
     pub fn new() -> Self {
+        debug!("Initializing Shell...");
         Self {
             codes: HashSet::new(),
             stdout: Box::new(Stream::new()),
@@ -239,6 +251,9 @@ impl<'a> Shell<'a> {
         stdout: Option<Box<dyn ReadWrite>>,
         stderr: Option<Box<dyn ReadWrite>>,
     ) -> Self {
+        debug!("Initializing Shell with custom streams...");
+        trace!("is stdout none: {}", stdout.is_none());
+        trace!("is stderr none: {}", stderr.is_none());
         Self {
             codes: HashSet::new(),
             stdout: stdout.unwrap_or(Box::new(Stream::new())),
@@ -249,14 +264,24 @@ impl<'a> Shell<'a> {
     /// Registers a code to Shell. Returns [CodeAlreadyExists](enum.ShellError.html) if
     /// the code with provided name already exists in the shell.
     pub fn register(&mut self, name: &'a str, invokable: Box<dyn Invokable>) -> ShellResult<()> {
+        debug!("Registering code...");
+        trace!("name: {}", name);
         match self.codes.iter().any(|c| c.name == name) {
-            true => Err(ShellError::CodeAlreadyExists { name }),
+            true => {
+                error!("Code already exists: {}", name);
+                Err(ShellError::CodeAlreadyExists { name })
+            }
             false => match Code::new(name, invokable) {
                 Ok(c) => {
+                    debug!("Inserting code...");
                     self.codes.insert(c);
                     Ok(())
                 }
-                Err(e) => Err(ShellError::CodeError { err: e }),
+                Err(e) => {
+                    let err = Err(ShellError::CodeError { err: e });
+                    error!("An error occured initializing code: {:?}", err);
+                    err
+                }
             },
         }
     }
@@ -264,10 +289,14 @@ impl<'a> Shell<'a> {
     /// Unregisters a code from Shell. Returns [CodeDoesNotExist](enum.ShellError.html) if
     /// the code with provided name does not exist in the shell.
     pub fn unregister(&mut self, name: &'a str) -> ShellResult<()> {
+        debug!("Unregistering code...");
+        trace!("name: {}", name);
         if !self.codes.iter().any(|c| c.name == name) {
+            error!("Code with name does not exist: {}", name);
             return Err(ShellError::CodeAlreadyExists { name });
         }
 
+        debug!("Removing code...");
         self.codes.retain(|c| !(c.name != name));
         Ok(())
     }
@@ -278,17 +307,35 @@ impl<'a> Shell<'a> {
     ///  - `starts_with`: Use `starts_with`. If `false`, it uses `contains`.
     ///  - `sort`: Sort code names alphabetically.
     pub fn filter_names(&self, query: &str, starts_with: bool, sort: bool) -> Vec<&str> {
+        debug!("Filtering code names...");
+        trace!("query: {}", query);
+        trace!("starts with: {}", starts_with);
+        trace!("sort: {}", sort);
+
+        debug!("Filtering codes...");
         let mut codenames: Vec<&str> = self
             .codes
             .iter()
             .filter(|c| match starts_with {
-                true => c.name.starts_with(query),
-                false => c.name.contains(query),
+                true => {
+                    let do_filter = c.name.starts_with(query);
+                    trace!("`{}` starts with `{}`: {}", c.name, query, do_filter);
+                    do_filter
+                }
+                false => {
+                    let do_filter = c.name.contains(query);
+                    trace!("`{}` contains `{}`: {}", c.name, query, do_filter);
+                    do_filter
+                }
             })
-            .map(|c| c.name)
+            .map(|c| {
+                debug!("Mapping `{}` to &str...", c.name);
+                c.name
+            })
             .collect();
 
         if sort {
+            debug!("Sorting code names...");
             codenames.sort();
         }
 
@@ -299,22 +346,30 @@ impl<'a> Shell<'a> {
     /// The unregistered codes are simply passed.
     pub fn run(&mut self, input: &'a str) {
         // method signature was: run(&mut self, input: &'a str) -> ShellResult<()>
+        debug!("Running input...");
+        trace!("\ninput\n-----\n{}", input);
+
+        debug!("Initializing lexer for input...");
         let lex = Token::lexer(input);
 
+        debug!("Iterating tokens in lexer...");
         for token in lex {
+            trace!("token: {:?}", token);
             match token {
                 Token::Code((name, args)) => match self.codes.iter().find(|c| c.name == name) {
                     Some(c) => {
+                        debug!("Invoking code...");
+                        trace!("name: {}", name);
+                        trace!("args: {}", args);
                         c.invokable.invoke(
                             &args[..],
                             Box::new(&mut self.stdout as &mut dyn Write),
                             Box::new(&mut self.stderr as &mut dyn Write),
                         );
-                        continue;
                     }
-                    None => continue, // TODO plan a better strategy
+                    None => warn!("Could not find Code."), // TODO plan a better strategy
                 },
-                _ => continue,
+                _ => debug!("Token is not Code: {:?}", token),
             }
         }
     }
@@ -357,9 +412,9 @@ mod tests {
     impl Invokable for SvFoo {
         fn invoke(
             &self,
-            args: &str,
-            mut stdout: Box<&mut dyn Write>,
-            mut stderr: Box<&mut dyn Write>,
+            _args: &str,
+            mut _stdout: Box<&mut dyn Write>,
+            mut _stderr: Box<&mut dyn Write>,
         ) {
             unimplemented!()
         }
@@ -369,9 +424,9 @@ mod tests {
     impl Invokable for SvFoobar {
         fn invoke(
             &self,
-            args: &str,
-            mut stdout: Box<&mut dyn Write>,
-            mut stderr: Box<&mut dyn Write>,
+            _args: &str,
+            mut _stdout: Box<&mut dyn Write>,
+            mut _stderr: Box<&mut dyn Write>,
         ) {
             unimplemented!()
         }
