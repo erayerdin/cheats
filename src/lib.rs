@@ -336,22 +336,30 @@ impl<'a> Shell<'a> {
     /// The unregistered codes are simply passed.
     pub fn run(&mut self, input: &'a str) {
         // method signature was: run(&mut self, input: &'a str) -> ShellResult<()>
+        debug!("Running input...");
+        trace!("\ninput\n-----\n{}", input);
+
+        debug!("Initializing lexer for input...");
         let lex = Token::lexer(input);
 
+        debug!("Iterating tokens in lexer...");
         for token in lex {
+            trace!("token: {:?}", token);
             match token {
                 Token::Code((name, args)) => match self.codes.iter().find(|c| c.name == name) {
                     Some(c) => {
+                        debug!("Invoking code...");
+                        trace!("name: {}", name);
+                        trace!("args: {}", args);
                         c.invokable.invoke(
                             &args[..],
                             Box::new(&mut self.stdout as &mut dyn Write),
                             Box::new(&mut self.stderr as &mut dyn Write),
                         );
-                        continue;
                     }
-                    None => continue, // TODO plan a better strategy
+                    None => warn!("Could not find Code."), // TODO plan a better strategy
                 },
-                _ => continue,
+                _ => debug!("Token is not Code: {:?}", token),
             }
         }
     }
