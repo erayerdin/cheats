@@ -402,9 +402,9 @@ mod tests {
     impl Invokable for SvFoo {
         fn invoke(
             &self,
-            args: &str,
-            mut stdout: Box<&mut dyn Write>,
-            mut stderr: Box<&mut dyn Write>,
+            _args: &str,
+            mut _stdout: Box<&mut dyn Write>,
+            mut _stderr: Box<&mut dyn Write>,
         ) {
             unimplemented!()
         }
@@ -414,9 +414,9 @@ mod tests {
     impl Invokable for SvFoobar {
         fn invoke(
             &self,
-            args: &str,
-            mut stdout: Box<&mut dyn Write>,
-            mut stderr: Box<&mut dyn Write>,
+            _args: &str,
+            mut _stdout: Box<&mut dyn Write>,
+            mut _stderr: Box<&mut dyn Write>,
         ) {
             unimplemented!()
         }
