@@ -125,6 +125,16 @@
 //!  - `starts_with`: If `true`, filters code names using `starts_with`, else uses `contains`.
 //!  - `sort`: If `true`, sorts code names alphabetically.
 //!
+//! ```rust
+//! // assuming you have `cl_hello`, `sv_foo`, `sv_foobar`
+//!
+//! let sv_codes = shell.filter_names("sv", true, true);
+//! assert_eq!(sv_codes, ["sv_foo", "sv_foobar"]);
+//!
+//! let foo_codes = shell.filter_names("foo", false, true);
+//! assert_eq!(foo_codes, ["sv_foo", "sv_foobar"]),
+//! ```
+//!
 //! ## Running Script
 //!
 //! You can run a cheat code line by doing:
