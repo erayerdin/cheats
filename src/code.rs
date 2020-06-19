@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use derivative::Derivative;
+use log::*;
 use snafu::Snafu;
 use std::io;
 
@@ -48,8 +49,13 @@ pub(crate) struct Code<'a> {
 
 impl<'a> Code<'a> {
     pub(crate) fn new(name: &'a str, invokable: Box<dyn Invokable>) -> CodeResult<Self> {
+        debug!("Initializing Code...");
+        trace!("name: {}", name);
         match name.chars().any(|c| c.is_whitespace()) {
-            true => Err(CodeError::WhitespaceError { name }),
+            true => {
+                error!("Name contains whitespace.");
+                Err(CodeError::WhitespaceError { name })
+            }
             false => Ok(Self { name, invokable }),
         }
     }
