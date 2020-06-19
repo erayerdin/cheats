@@ -307,10 +307,21 @@ impl<'a> Shell<'a> {
             .codes
             .iter()
             .filter(|c| match starts_with {
-                true => c.name.starts_with(query),
-                false => c.name.contains(query),
+                true => {
+                    let do_filter = c.name.starts_with(query);
+                    trace!("`{}` starts with `{}`: {}", c.name, query, do_filter);
+                    do_filter
+                }
+                false => {
+                    let do_filter = c.name.contains(query);
+                    trace!("`{}` contains `{}`: {}", c.name, query, do_filter);
+                    do_filter
+                }
             })
-            .map(|c| c.name)
+            .map(|c| {
+                debug!("Mapping `{}` to &str...", c.name);
+                c.name
+            })
             .collect();
 
         if sort {
