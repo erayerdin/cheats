@@ -254,14 +254,24 @@ impl<'a> Shell<'a> {
     /// Registers a code to Shell. Returns [CodeAlreadyExists](enum.ShellError.html) if
     /// the code with provided name already exists in the shell.
     pub fn register(&mut self, name: &'a str, invokable: Box<dyn Invokable>) -> ShellResult<()> {
+        debug!("Registering code...");
+        trace!("name: {}", name);
         match self.codes.iter().any(|c| c.name == name) {
-            true => Err(ShellError::CodeAlreadyExists { name }),
+            true => {
+                error!("Code already exists: {}", name);
+                Err(ShellError::CodeAlreadyExists { name })
+            }
             false => match Code::new(name, invokable) {
                 Ok(c) => {
+                    debug!("Inserting code...");
                     self.codes.insert(c);
                     Ok(())
                 }
-                Err(e) => Err(ShellError::CodeError { err: e }),
+                Err(e) => {
+                    let err = Err(ShellError::CodeError { err: e });
+                    error!("An error occured initializing code: {:?}", err);
+                    err
+                }
             },
         }
     }
