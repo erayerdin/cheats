@@ -182,6 +182,7 @@ use crate::code::Code;
 use crate::code::CodeError as CError;
 use crate::code::Invokable;
 use io::Stream;
+use log::*;
 use logos::Logos;
 use parser::Token;
 use snafu::Snafu;
@@ -222,6 +223,7 @@ pub struct Shell<'a> {
 
 impl<'a> Shell<'a> {
     pub fn new() -> Self {
+        debug!("Initializing Shell...");
         Self {
             codes: HashSet::new(),
             stdout: Box::new(Stream::new()),
@@ -239,6 +241,9 @@ impl<'a> Shell<'a> {
         stdout: Option<Box<dyn ReadWrite>>,
         stderr: Option<Box<dyn ReadWrite>>,
     ) -> Self {
+        debug!("Initializing Shell with custom streams...");
+        trace!("is stdout none: {}", stdout.is_none());
+        trace!("is stderr none: {}", stderr.is_none());
         Self {
             codes: HashSet::new(),
             stdout: stdout.unwrap_or(Box::new(Stream::new())),
