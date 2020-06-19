@@ -30,7 +30,7 @@ impl Stream {
 
 impl io::Read for Stream {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
-        debug!("Reading stream...");
+        debug!("Reading from stream...");
 
         let length = buf.len();
         trace!("buffer length: {}", length);
@@ -57,6 +57,9 @@ impl io::Read for Stream {
 
 impl io::Write for Stream {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        debug!("Writing to stream...");
+        trace!("buffer length: {}", buf.len());
+
         #[allow(unused_imports)]
         use std::io::Write; // required for writing to buffer
 
