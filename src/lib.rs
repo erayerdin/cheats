@@ -297,6 +297,12 @@ impl<'a> Shell<'a> {
     ///  - `starts_with`: Use `starts_with`. If `false`, it uses `contains`.
     ///  - `sort`: Sort code names alphabetically.
     pub fn filter_names(&self, query: &str, starts_with: bool, sort: bool) -> Vec<&str> {
+        debug!("Filtering code names...");
+        trace!("query: {}", query);
+        trace!("starts with: {}", starts_with);
+        trace!("sort: {}", sort);
+
+        debug!("Filtering codes...");
         let mut codenames: Vec<&str> = self
             .codes
             .iter()
@@ -308,6 +314,7 @@ impl<'a> Shell<'a> {
             .collect();
 
         if sort {
+            debug!("Sorting code names...");
             codenames.sort();
         }
 
