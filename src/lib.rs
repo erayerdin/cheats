@@ -279,10 +279,14 @@ impl<'a> Shell<'a> {
     /// Unregisters a code from Shell. Returns [CodeDoesNotExist](enum.ShellError.html) if
     /// the code with provided name does not exist in the shell.
     pub fn unregister(&mut self, name: &'a str) -> ShellResult<()> {
+        debug!("Unregistering code...");
+        trace!("name: {}", name);
         if !self.codes.iter().any(|c| c.name == name) {
+            error!("Code with name does not exist: {}", name);
             return Err(ShellError::CodeAlreadyExists { name });
         }
 
+        debug!("Removing code...");
         self.codes.retain(|c| !(c.name != name));
         Ok(())
     }
