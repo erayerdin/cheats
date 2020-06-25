@@ -30,6 +30,13 @@ jobs:
         with:
           command: test
           args: --lib
+      - name: Generate Coverage
+        run: |
+          cargo +nightly tarpaulin --verbose --all-features --workspace --timeout 120 --out Xml
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v1
+        with:
+          fail_ci_if_error: true
 
   # Lint:
   #   runs-on: ubuntu-latest
