@@ -38,13 +38,13 @@ jobs:
           command: test
           args: --lib
       - name: Generate Coverage
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.rust == 'stable'
         run: |
           cargo install cargo-tarpaulin
           cargo tarpaulin --verbose --all-features --workspace --timeout 120 --out Xml
       - name: Upload Coverage
         uses: codecov/codecov-action@v1
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.rust == 'stable'
         with:
           fail_ci_if_error: true
 
