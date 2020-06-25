@@ -31,11 +31,13 @@ jobs:
           command: test
           args: --lib
       - name: Generate Coverage
+        if: runner.os == "ubuntu-latest"
         run: |
           cargo install cargo-tarpaulin
           cargo tarpaulin --verbose --all-features --workspace --timeout 120 --out Xml
       - name: Upload Coverage
         uses: codecov/codecov-action@v1
+        if: runner.os == "ubuntu-latest"
         with:
           fail_ci_if_error: true
 
