@@ -134,6 +134,14 @@
 //! assert_eq!(foo_codes, ["sv_foo", "sv_foobar"]),
 //! ```
 //!
+//! While, in this case, the `Vec` of code names are ordered, it might not be in larger
+//! examples. In this case, you can sort a `Vec` by using `sort` on it.
+//!
+//! ```rust
+//! let sv_codes: Vec<&str> = shell.filter_names("sv", true).collect();
+//! sv_codes.sort();
+//! ```
+//!
 //! Note that `filter_names` method actually returns an
 //! [Iterator](https://doc.rust-lang.org/std/iter/trait.Iterator.html), which, then,
 //! you can `collect` into a `Vec<&str>`.
