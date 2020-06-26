@@ -570,5 +570,11 @@ mod tests {
             sv_foo_names,
             HashSet::from_iter(["sv_foo", "sv_foobar"].iter().cloned())
         );
+
+        let foo_names: HashSet<&str> = shell.filter_names("foo", false).collect();
+        assert_eq!(
+            foo_names,
+            HashSet::from_iter(["sv_foo", "sv_foobar"].iter().cloned())
+        );
     }
 }
