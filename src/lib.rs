@@ -211,7 +211,7 @@ use std::collections::HashSet;
 use std::io::{Read, Write};
 
 pub mod code;
-pub mod io;
+mod io;
 mod parser;
 
 #[derive(Debug, Snafu)]
@@ -252,25 +252,25 @@ impl<'a> Shell<'a> {
         }
     }
 
-    /// Initializes a Shell with custom stream.
-    /// By stream, it is meant a struct that implements both [Read][read_trait]
-    /// and [Write][write_trait] trait.
-    ///
-    /// [read_trait]: https://doc.rust-lang.org/std/io/trait.Read.html
-    /// [write_trait]: https://doc.rust-lang.org/std/io/trait.Write.html
-    pub fn new_with_streams(
-        stdout: Option<Box<dyn ReadWrite>>,
-        stderr: Option<Box<dyn ReadWrite>>,
-    ) -> Self {
-        debug!("Initializing Shell with custom streams...");
-        trace!("is stdout none: {}", stdout.is_none());
-        trace!("is stderr none: {}", stderr.is_none());
-        Self {
-            codes: HashSet::new(),
-            stdout: stdout.unwrap_or(Box::new(Stream::new())),
-            stderr: stderr.unwrap_or(Box::new(Stream::new())),
-        }
-    }
+    // /// Initializes a Shell with custom stream.
+    // /// By stream, it is meant a struct that implements both [Read][read_trait]
+    // /// and [Write][write_trait] trait.
+    // ///
+    // /// [read_trait]: https://doc.rust-lang.org/std/io/trait.Read.html
+    // /// [write_trait]: https://doc.rust-lang.org/std/io/trait.Write.html
+    // pub fn new_with_streams(
+    //     stdout: Option<Box<dyn ReadWrite>>,
+    //     stderr: Option<Box<dyn ReadWrite>>,
+    // ) -> Self {
+    //     debug!("Initializing Shell with custom streams...");
+    //     trace!("is stdout none: {}", stdout.is_none());
+    //     trace!("is stderr none: {}", stderr.is_none());
+    //     Self {
+    //         codes: HashSet::new(),
+    //         stdout: stdout.unwrap_or(Box::new(Stream::new())),
+    //         stderr: stderr.unwrap_or(Box::new(Stream::new())),
+    //     }
+    // }
 
     /// Registers a code to Shell. Returns [CodeAlreadyExists](enum.ShellError.html) if
     /// the code with provided name already exists in the shell.
