@@ -127,10 +127,10 @@
 //! ```rust
 //! // assuming you have `cl_hello`, `sv_foo`, `sv_foobar`
 //!
-//! let sv_codes: Vec<&str> = shell.filter_names("sv", true, true).collect();
+//! let sv_codes: Vec<&str> = shell.filter_names("sv", true).collect();
 //! assert_eq!(sv_codes, ["sv_foo", "sv_foobar"]);
 //!
-//! let foo_codes: Vec<&str> = shell.filter_names("foo", false, true).collect();
+//! let foo_codes: Vec<&str> = shell.filter_names("foo", false).collect();
 //! assert_eq!(foo_codes, ["sv_foo", "sv_foobar"]),
 //! ```
 //!
@@ -559,8 +559,5 @@ mod tests {
 
         let sv_foo_names: Vec<&str> = shell.filter_names("sv_foo", true).collect();
         assert_eq!(sv_foo_names, ["sv_foo", "sv_foobar"]);
-
-        let foo_names: Vec<&str> = shell.filter_names("foo", false).collect();
-        assert_eq!(foo_names, ["sv_foo", "sv_foobar"]);
     }
 }
