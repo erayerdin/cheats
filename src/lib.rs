@@ -565,7 +565,10 @@ mod tests {
             .register("sv_foobar", Box::new(SvFoobar))
             .expect("Could not register sv_foobar.");
 
-        let sv_foo_names: Vec<&str> = shell.filter_names("sv_foo", true).collect();
-        assert_eq!(sv_foo_names, ["sv_foo", "sv_foobar"]);
+        let sv_foo_names: HashSet<&str> = shell.filter_names("sv_foo", true).collect();
+        assert_eq!(
+            sv_foo_names,
+            HashSet::from_iter(["sv_foo", "sv_foobar"].iter().cloned())
+        );
     }
 }
