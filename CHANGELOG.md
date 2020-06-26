@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
  - `Shell::filter_names` now return `Iterator` instead of `Vec`.
+ - `Shell::new_with_streams` is removed.
+ - `cheats::io` is not private.
 
 ## [v0.3.1] - 2020-06-19
 ### Added
