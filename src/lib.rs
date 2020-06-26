@@ -211,7 +211,7 @@ use std::collections::HashSet;
 use std::io::{Read, Write};
 
 pub mod code;
-pub mod io;
+mod io;
 mod parser;
 
 #[derive(Debug, Snafu)]
