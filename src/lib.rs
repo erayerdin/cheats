@@ -123,17 +123,20 @@
 //!
 //!  - `query`: A query to filter code names.
 //!  - `starts_with`: If `true`, filters code names using `starts_with`, else uses `contains`.
-//!  - `sort`: If `true`, sorts code names alphabetically.
 //!
 //! ```rust
 //! // assuming you have `cl_hello`, `sv_foo`, `sv_foobar`
 //!
-//! let sv_codes = shell.filter_names("sv", true, true);
+//! let sv_codes: Vec<&str> = shell.filter_names("sv", true, true).collect();
 //! assert_eq!(sv_codes, ["sv_foo", "sv_foobar"]);
 //!
-//! let foo_codes = shell.filter_names("foo", false, true);
+//! let foo_codes: Vec<&str> = shell.filter_names("foo", false, true).collect();
 //! assert_eq!(foo_codes, ["sv_foo", "sv_foobar"]),
 //! ```
+//!
+//! Note that `filter_names` method actually returns an
+//! [Iterator](https://doc.rust-lang.org/std/iter/trait.Iterator.html), which, then,
+//! you can `collect` into a `Vec<&str>`.
 //!
 //! ## Running Script
 //!
