@@ -123,17 +123,28 @@
 //!
 //!  - `query`: A query to filter code names.
 //!  - `starts_with`: If `true`, filters code names using `starts_with`, else uses `contains`.
-//!  - `sort`: If `true`, sorts code names alphabetically.
 //!
 //! ```rust
 //! // assuming you have `cl_hello`, `sv_foo`, `sv_foobar`
 //!
-//! let sv_codes = shell.filter_names("sv", true, true);
+//! let sv_codes: Vec<&str> = shell.filter_names("sv", true).collect();
 //! assert_eq!(sv_codes, ["sv_foo", "sv_foobar"]);
 //!
-//! let foo_codes = shell.filter_names("foo", false, true);
+//! let foo_codes: Vec<&str> = shell.filter_names("foo", false).collect();
 //! assert_eq!(foo_codes, ["sv_foo", "sv_foobar"]),
 //! ```
+//!
+//! While, in this case, the `Vec` of code names are ordered, it might not be in larger
+//! examples. In this case, you can sort a `Vec` by using `sort` on it.
+//!
+//! ```rust
+//! let sv_codes: Vec<&str> = shell.filter_names("sv", true).collect();
+//! sv_codes.sort();
+//! ```
+//!
+//! Note that `filter_names` method actually returns an
+//! [Iterator](https://doc.rust-lang.org/std/iter/trait.Iterator.html), which, then,
+//! you can `collect` into a `Vec<&str>`.
 //!
 //! ## Running Script
 //!
@@ -200,7 +211,7 @@ use std::collections::HashSet;
 use std::io::{Read, Write};
 
 pub mod code;
-pub mod io;
+mod io;
 mod parser;
 
 #[derive(Debug, Snafu)]
@@ -241,25 +252,25 @@ impl<'a> Shell<'a> {
         }
     }
 
-    /// Initializes a Shell with custom stream.
-    /// By stream, it is meant a struct that implements both [Read][read_trait]
-    /// and [Write][write_trait] trait.
-    ///
-    /// [read_trait]: https://doc.rust-lang.org/std/io/trait.Read.html
-    /// [write_trait]: https://doc.rust-lang.org/std/io/trait.Write.html
-    pub fn new_with_streams(
-        stdout: Option<Box<dyn ReadWrite>>,
-        stderr: Option<Box<dyn ReadWrite>>,
-    ) -> Self {
-        debug!("Initializing Shell with custom streams...");
-        trace!("is stdout none: {}", stdout.is_none());
-        trace!("is stderr none: {}", stderr.is_none());
-        Self {
-            codes: HashSet::new(),
-            stdout: stdout.unwrap_or(Box::new(Stream::new())),
-            stderr: stderr.unwrap_or(Box::new(Stream::new())),
-        }
-    }
+    // /// Initializes a Shell with custom stream.
+    // /// By stream, it is meant a struct that implements both [Read][read_trait]
+    // /// and [Write][write_trait] trait.
+    // ///
+    // /// [read_trait]: https://doc.rust-lang.org/std/io/trait.Read.html
+    // /// [write_trait]: https://doc.rust-lang.org/std/io/trait.Write.html
+    // pub fn new_with_streams(
+    //     stdout: Option<Box<dyn ReadWrite>>,
+    //     stderr: Option<Box<dyn ReadWrite>>,
+    // ) -> Self {
+    //     debug!("Initializing Shell with custom streams...");
+    //     trace!("is stdout none: {}", stdout.is_none());
+    //     trace!("is stderr none: {}", stderr.is_none());
+    //     Self {
+    //         codes: HashSet::new(),
+    //         stdout: stdout.unwrap_or(Box::new(Stream::new())),
+    //         stderr: stderr.unwrap_or(Box::new(Stream::new())),
+    //     }
+    // }
 
     /// Registers a code to Shell. Returns [CodeAlreadyExists](enum.ShellError.html) if
     /// the code with provided name already exists in the shell.
@@ -306,40 +317,36 @@ impl<'a> Shell<'a> {
     ///  - `query`: The query to filter code names against.
     ///  - `starts_with`: Use `starts_with`. If `false`, it uses `contains`.
     ///  - `sort`: Sort code names alphabetically.
-    pub fn filter_names(&self, query: &str, starts_with: bool, sort: bool) -> Vec<&str> {
+    pub fn filter_names(
+        &'a self,
+        query: &'a str,
+        starts_with: bool,
+    ) -> Box<dyn Iterator<Item = &'a str> + 'a> {
         debug!("Filtering code names...");
         trace!("query: {}", query);
         trace!("starts with: {}", starts_with);
-        trace!("sort: {}", sort);
 
-        debug!("Filtering codes...");
-        let mut codenames: Vec<&str> = self
-            .codes
-            .iter()
-            .filter(|c| match starts_with {
-                true => {
-                    let do_filter = c.name.starts_with(query);
-                    trace!("`{}` starts with `{}`: {}", c.name, query, do_filter);
-                    do_filter
-                }
-                false => {
-                    let do_filter = c.name.contains(query);
-                    trace!("`{}` contains `{}`: {}", c.name, query, do_filter);
-                    do_filter
-                }
-            })
-            .map(|c| {
-                debug!("Mapping `{}` to &str...", c.name);
-                c.name
-            })
-            .collect();
-
-        if sort {
-            debug!("Sorting code names...");
-            codenames.sort();
-        }
-
-        codenames
+        debug!("Generating code iterator...");
+        Box::new(
+            self.codes
+                .iter()
+                .filter(move |c| match starts_with {
+                    true => {
+                        let do_filter = c.name.starts_with(query);
+                        trace!("`{}` starts with `{}`: {}", c.name, query, do_filter);
+                        do_filter
+                    }
+                    false => {
+                        let do_filter = c.name.contains(query);
+                        trace!("`{}` contains `{}`: {}", c.name, query, do_filter);
+                        do_filter
+                    }
+                })
+                .map(|c| {
+                    debug!("Mapping `{}` to &str...", c.name);
+                    c.name
+                }),
+        )
     }
 
     /// Invokes commands with given input. You can read from a file.
@@ -558,10 +565,16 @@ mod tests {
             .register("sv_foobar", Box::new(SvFoobar))
             .expect("Could not register sv_foobar.");
 
-        let sv_foo_names = shell.filter_names("sv_foo", true, true);
-        assert_eq!(sv_foo_names, ["sv_foo", "sv_foobar"]);
+        let sv_foo_names: HashSet<&str> = shell.filter_names("sv_foo", true).collect();
+        assert_eq!(
+            sv_foo_names,
+            HashSet::from_iter(["sv_foo", "sv_foobar"].iter().cloned())
+        );
 
-        let foo_names = shell.filter_names("foo", false, true);
-        assert_eq!(foo_names, ["sv_foo", "sv_foobar"]);
+        let foo_names: HashSet<&str> = shell.filter_names("foo", false).collect();
+        assert_eq!(
+            foo_names,
+            HashSet::from_iter(["sv_foo", "sv_foobar"].iter().cloned())
+        );
     }
 }
