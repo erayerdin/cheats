@@ -306,40 +306,36 @@ impl<'a> Shell<'a> {
     ///  - `query`: The query to filter code names against.
     ///  - `starts_with`: Use `starts_with`. If `false`, it uses `contains`.
     ///  - `sort`: Sort code names alphabetically.
-    pub fn filter_names(&self, query: &str, starts_with: bool, sort: bool) -> Vec<&str> {
+    pub fn filter_names(
+        &'a self,
+        query: &'a str,
+        starts_with: bool,
+    ) -> Box<dyn Iterator<Item = &'a str> + 'a> {
         debug!("Filtering code names...");
         trace!("query: {}", query);
         trace!("starts with: {}", starts_with);
-        trace!("sort: {}", sort);
 
-        debug!("Filtering codes...");
-        let mut codenames: Vec<&str> = self
-            .codes
-            .iter()
-            .filter(|c| match starts_with {
-                true => {
-                    let do_filter = c.name.starts_with(query);
-                    trace!("`{}` starts with `{}`: {}", c.name, query, do_filter);
-                    do_filter
-                }
-                false => {
-                    let do_filter = c.name.contains(query);
-                    trace!("`{}` contains `{}`: {}", c.name, query, do_filter);
-                    do_filter
-                }
-            })
-            .map(|c| {
-                debug!("Mapping `{}` to &str...", c.name);
-                c.name
-            })
-            .collect();
-
-        if sort {
-            debug!("Sorting code names...");
-            codenames.sort();
-        }
-
-        codenames
+        debug!("Generating code iterator...");
+        Box::new(
+            self.codes
+                .iter()
+                .filter(move |c| match starts_with {
+                    true => {
+                        let do_filter = c.name.starts_with(query);
+                        trace!("`{}` starts with `{}`: {}", c.name, query, do_filter);
+                        do_filter
+                    }
+                    false => {
+                        let do_filter = c.name.contains(query);
+                        trace!("`{}` contains `{}`: {}", c.name, query, do_filter);
+                        do_filter
+                    }
+                })
+                .map(|c| {
+                    debug!("Mapping `{}` to &str...", c.name);
+                    c.name
+                }),
+        )
     }
 
     /// Invokes commands with given input. You can read from a file.
