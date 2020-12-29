@@ -6,11 +6,12 @@ jobs:
   Test:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        # os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest]
         rust: [stable, beta]
         exclude:
-          - os: macos-latest
-            rust: beta
+          # - os: macos-latest
+          #   rust: beta
           - os: windows-latest
             rust: beta
 
