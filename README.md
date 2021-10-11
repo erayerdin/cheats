@@ -23,29 +23,7 @@
 [actions_url]: https://github.com/erayerdin/cheats/actions
 [codecov_url]: https://codecov.io/gh/erayerdin/cheats
 
-cheats is a shell backend for games. Basically, it helps you 
-invoke functionality with a Valve-game-like shell grammar.
-
-The library is not yet production-ready. It has a very 
-simple implementation of developer console and might lack 
-some features you might desire.
-
-# Shell Grammar
-
-There are many conventions about how to cheat. Grand Theft 
-Auto series receive sequential keypresses and invokes 
-functionality. Age of Empires II has a simple
-textbox to invoke a cheat but its cheats do not accept any
-arguments.
-
-In this library, cheats, the developer console of Valve 
-games such as Half-Life, Counter-Strike, Portal, Left 4 
-Dead etc. has been an inspiration  and it is implemented in such a way. The grammar is similar to below.
-
-    // this is a comment
-    # this is a comment as well
-    cl_hello // without args
-    cl_hello Eray # with args
+`cheats` is a cheating plugin for [bevy](https://bevyengine.org/).
 
 # Documentation
 
